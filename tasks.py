@@ -17,6 +17,12 @@ def _cmd(command, args=[]):
     return run(command.split(" ") + args)
 
 
+def _pycmd(command, args=[]):
+    # TODO: make this cross platform
+    py3 = ".venv/bin/python3"
+    return run([py3, "-m"] + command.split(" ") + args)
+
+
 def _exit_handler(status):
     statuses = status if type(status) == list else [status]
     bad_statuses = [s for s in statuses if s.returncode != 0]
@@ -27,21 +33,21 @@ def _exit_handler(status):
 def task_init(args):
     results = []
     results.append(_cmd("python3 -m venv .venv"))
-    results.append(_cmd(".venv/bin/python3 -m pip install --upgrade pip setuptools wheel"))
-    results.append(_cmd(".venv/bin/python3 -m pip install -r requirements-root.txt"))
-    results.append(_cmd(".venv/bin/python3 -m pip list -v --no-index"))
+    results.append(_pycmd(f"pip install --upgrade pip setuptools wheel"))
+    results.append(_pycmd(f"pip install --upgrade jupyter jupyterlab"))
+    results.append(_pycmd(f"pip list -v --no-index"))
     return results
 
 
 def task_start(args):
-    return _cmd(".venv/bin/python3 -m jupyter lab")
+    return _pycmd(f"jupyter lab")
 
 
 def task_setup_ch(args):
-    if len(args) < 1 or int(args[0]) not in range(1, 10):
+    if len(args) < 1 or int(args[0]) not in range(2, 10):
         raise ValueError("Task 'setup_ch' requires a chapter number. Eg, './task.py setup_ch 3'")
 
-    return _cmd(f".venv/bin/python3 -m pip install -r Ch{args[0]}/requirements.txt")
+    return _pycmd(f"pip install -r Ch{args[0]}/requirements.txt")
 
 
 if __name__ == "__main__":
